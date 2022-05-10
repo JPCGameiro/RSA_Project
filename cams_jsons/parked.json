@@ -1,0 +1,41 @@
+{
+	"accEngaged":false,
+	"acceleration":0,
+	"altitude":800001,
+	"altitudeConf":15,
+	"brakePedal":false,
+	"collisionWarning": false,
+	"cruiseControl":false,
+	"curvature":1023,
+	"driveDirection":"FORWARD",
+	"emergencyBrake":true,
+	"gasPedal":false,
+	"heading":0,
+	"headingConf":127,
+	"latitude":40.63161227990999,
+	"length":30,
+	"longitude":-8.656710277900652,
+	"newInfo":true,
+	"receiverID":1,
+	"receiverType":15,
+	"rssi":-150,
+	"semiMajorConf":4095,
+	"semiMajorOrient":3601,
+	"semiMinorConf":4095,
+	"specialVehicle":{
+		"publicTransportContainer":{
+			"embarkationStatus":false
+		}
+	},
+	"speed":0,
+	"speedConf":127,
+	"speedLimiter":true,
+	"stationID":2,
+	"stationType":5,
+	"test":{
+		"json_timestamp":1652094179.806
+	},
+	"timestamp":1652094179.806,
+	"width":30,
+	"yawRate":0
+}
