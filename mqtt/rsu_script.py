@@ -5,7 +5,6 @@ import time, json, sys, multiprocessing as mp
 
 
 
-
 #callbacks
 def on_connect(client, userdata, flags, rc):
     if rc==0: print("connected")
@@ -18,19 +17,38 @@ def on_disconnect(client, userdata, flags, rc=0):
 def on_message(client, userdata, msg):
     topic=msg.topic
     m_decode=str(msg.payload.decode("utf-8","ignore"))
-    m_in=json.loads(m_decode)
-    print(m_in)
+    cam=json.loads(m_decode)
+    brk = client._client_id.decode("utf-8")
+    
+    park_occp = []
     #verificar carros na sua area
-    #a entrar: 
-    #verificar disponobilidade de lugares
-    #verificar se estacinou, contador especif para avaliar se estacionou!!
-    #responder com denm msg
-    #a sair:
-    #libertar lugares
+    if verflocal(40.631491, cam['latitude'], -8.656481, cam['longitude']):
+        if cam['speed'] != 0:
+            if cam['stationID'] in park_occp: 
+                park_occp.pop(cam['stationID'])
+            else:
+                #verificar disponobilidade de lugares
+                free_prks = verfFreePark(brk, cam['stationType'])
+                #responder com denm msg
+        else: 
+            #verificar se esta num dos parques
+            #add parks ocupados
+            pass
+    
+
+def verflocal(lat, vlat, long, vlong):
+    return 0.000005 >= (pow(vlat - lat, 2) - pow(vlong - long, 2))
+
+def verfFreePark(broker, vtype):
+    db = sql.connect('park.db')
+    crs = db.cursor()
+    crs.execute('select count(distinct point) from Park where ip = "{b}" and vtype = {v}'.format(b=broker, v=vtype))
+    cnt = crs.fetchone()
+    return cnt[0]
 
 
 def rsu_process(broker):
-    rsu = mqtt.Client("rsu")
+    rsu = mqtt.Client(broker)
     rsu.on_connect = on_connect
     rsu.on_disconnect = on_disconnect
     rsu.on_message = on_message
@@ -41,7 +59,7 @@ def rsu_process(broker):
     print("dcnt flag value : {rsu.dcnt_flag}")
     while(rsu.dcnt_flag):
         rsu.subscribe('vanetza/out/cam')
-        time.sleep(3)
+        time.sleep(2)
     
     rsu.loop_stop()
     rsu.disconnect()
@@ -54,9 +72,10 @@ def main():
 
     proc_list = []
     for brk in broker_rsus:
-        rsuProc = mp.Process(target=rsu_process, args=[brk]) 
+        rsuProc = mp.Process(target=rsu_process, args=[brk])
         rsuProc.start()
         proc_list.append(rsuProc)
+
 
     for rsuProc in proc_list:   
         rsuProc.join()
@@ -80,10 +99,16 @@ if(__name__ == '__main__'):
 
 
 
+
+
+
+
+#rsu1: 40.631491, -8.656481
 class RSU:
     db = sql.connect('park.db')
 
-    def __init__(self, lat, long, broker):
+    def __init__(self, parkingLot, lat, long, broker):
+        self.parkingLot = parkingLot
         self.lat = lat
         self.long = long
         self.broker = broker
@@ -113,12 +138,13 @@ class RSU:
     
 
     #verifies db if the vehicle is in the range of it's operation
-    def verifyLocal(self):
-        self.db.execute('')
+    def verifyLocal(self, vlat, vlong):
+        return 100 >= pow(vlat - self.lat, 2) - pow(vlong - self.long, 2)
 
     #verifies if the parking lot has space for the vehicle
-    def verifyParks(self):
-        self.db.execute('')
+    def verifyFreeParks(self, vtype, vprio):
+        self.db.execute('select point form Park where park = %s and vehicle = %s and priority = %s limit 1', self.parkingLot, vtype, vprio)
+        
 
     #disconnect RSU
     def disconnect(self):

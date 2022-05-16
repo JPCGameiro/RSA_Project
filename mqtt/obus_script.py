@@ -27,9 +27,9 @@ def obu_process(broker):
 
     f = open('cam.json')    
     cam = json.load(f)
-    for _ in range(10):
+    for _ in range(4):
         obu.publish("vanetza/in/cam", json.dumps(cam))
-        time.sleep(3)
+        time.sleep(2)
     f.close()
     
     obu.loop_stop()
@@ -67,7 +67,6 @@ def main():
 
 if(__name__ == '__main__'):
     main()
-
 
 
 
