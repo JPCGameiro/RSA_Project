@@ -26,14 +26,19 @@ def on_message(client, userdata, msg):
         if cam['speed'] != 0:
             if cam['stationID'] in park_occp: 
                 park_occp.pop(cam['stationID'])
+                parkout(cam['latitude'], cam['longitude'])
             else:
                 #verificar disponobilidade de lugares
                 free_prks = verfFreePark(brk, cam['stationType'])
                 #responder com denm msg
         else: 
             #verificar se esta num dos parques
-            #add parks ocupados
-            pass
+            if not cam['stationID'] in park_occp:
+                #add parks ocupados
+                park_occp.append(cam['stationID'])
+                parkin(cam['latitude'], cam['longitude'])
+
+        
     
 
 def verflocal(lat, vlat, long, vlong):
@@ -42,10 +47,21 @@ def verflocal(lat, vlat, long, vlong):
 def verfFreePark(broker, vtype):
     db = sql.connect('park.db')
     crs = db.cursor()
-    crs.execute('select count(distinct point) from Park where ip = "{b}" and vtype = {v}'.format(b=broker, v=vtype))
+    crs.execute('select count(distinct point) from Park where state = 0 and ip = "{b}" and vtype = {v}'.format(b=broker, v=vtype))
     cnt = crs.fetchone()
     return cnt[0]
 
+def parkin(lat, long):
+    db = sql.connect('park.db')
+    crs = db.cursor()
+    crs.execute('select point from coordinate where lat = "{lat}" and long = {long}'.format(lat=lat, long=long))
+    crs.execute('update park set state = 1 where point = {pnt}'.format(crs.fetchone()[0]))
+
+def parkout(lat, long):
+    db = sql.connect('park.db')
+    crs = db.cursor()
+    crs.execute('select point from coordinate where lat = "{lat}" and long = {long}'.format(lat=lat, long=long))
+    crs.execute('update park set state = 0 where point = {pnt}'.format(crs.fetchone()[0]))
 
 def rsu_process(broker):
     rsu = mqtt.Client(broker)
@@ -80,18 +96,6 @@ def main():
     for rsuProc in proc_list:   
         rsuProc.join()
 
-
-    '''
-    rsu_dict = {}
-    #Connect RSUs clients
-    for brk in broker_rsus:
-        rsu_dict[brk] = RSU(brk)
-        rsu_dict[brk].connect()
-    
-    #disconnect RSUs clients
-    for brk in broker_rsus:
-        rsu_dict[brk].disconnect()
-    '''
 
 if(__name__ == '__main__'):
     main()

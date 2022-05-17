@@ -14,11 +14,10 @@ db.execute('''create table park( vtype integer not null,
                                 vpriort text,
                                 point integer not null,
                                 ip text not null,
+                                state integer not null,
                                 num integer primary key autoincrement,
                                 foreign key(point) references coordinate(point),
                                 foreign key(ip) references rsu(ip));''')
-
-
 
 
 
@@ -36,12 +35,12 @@ db.execute('insert into coordinate values(40, 90,  null)')
 db.execute('insert into coordinate values(40, 60,  null)')
 
 
-db.execute('insert into park values(15, null,      1, "192.168.98.20", null)')
-db.execute('insert into park values(15, null,      2, "192.168.98.20", null)')
-db.execute('insert into park values(15, "def",     3, "192.168.98.20", null)')
-db.execute('insert into park values(15, null,      4, "192.168.98.10", null)')
-db.execute('insert into park values(15, null,      5, "192.168.98.10", null)')
-db.execute('insert into park values(15, "gravida", 6, "192.168.98.10", null)')
+db.execute('insert into park values(15, null,      1, "192.168.98.20", 0, null)')
+db.execute('insert into park values(15, null,      2, "192.168.98.20", 0, null)')
+db.execute('insert into park values(15, "def",     3, "192.168.98.20", 0, null)')
+db.execute('insert into park values(15, null,      4, "192.168.98.10", 0, null)')
+db.execute('insert into park values(15, null,      5, "192.168.98.10", 0, null)')
+db.execute('insert into park values(15, "gravida", 6, "192.168.98.10", 0, null)')
 
 db.commit()
 db.close()

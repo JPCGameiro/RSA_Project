@@ -48,21 +48,7 @@ def main():
         proc_list.append(obuProc)
 
     for obuProc in proc_list:   
-        obuProc.join()
-
-
-    '''
-    obu_dict ={}
-    run = True
-    while(run):
-        
-        for brk in broker_obus:
-            obu_dict[brk] = OBU(brk)
-            obu_dict[brk].connect()
-
-        for brk in broker_obus:
-            obu_dict[brk].disconnect()
-    '''    
+        obuProc.join()   
     
 
 if(__name__ == '__main__'):
