@@ -2,7 +2,7 @@ import paho.mqtt.client as mqtt
 import sqlite3 as sql
 import time, json, sys, multiprocessing as mp
 
-
+park_occp = []
 
 
 #callbacks
@@ -20,7 +20,6 @@ def on_message(client, userdata, msg):
     cam=json.loads(m_decode)
     brk = client._client_id.decode("utf-8")
     
-    park_occp = []
     #verificar carros na sua area
     if verflocal(40.631491, cam['latitude'], -8.656481, cam['longitude']):
         if cam['speed'] != 0:
@@ -31,6 +30,9 @@ def on_message(client, userdata, msg):
                 #verificar disponobilidade de lugares
                 free_prks = verfFreePark(brk, cam['stationType'])
                 #responder com denm msg
+                #sendDenm(client, free_prks)
+                print("\ndemn send\n")
+
         else: 
             #verificar se esta num dos parques
             if not cam['stationID'] in park_occp:
@@ -42,7 +44,7 @@ def on_message(client, userdata, msg):
     
 
 def verflocal(lat, vlat, long, vlong):
-    return 0.000005 >= (pow(vlat - lat, 2) - pow(vlong - long, 2))
+    return 0.000005 >= (pow(vlat*0.0000001 - lat, 2) - pow(vlong*0.0000001 - long, 2))
 
 def verfFreePark(broker, vtype):
     db = sql.connect('park.db')
@@ -62,6 +64,15 @@ def parkout(lat, long):
     crs = db.cursor()
     crs.execute('select point from coordinate where lat = "{lat}" and long = {long}'.format(lat=lat, long=long))
     crs.execute('update park set state = 0 where point = {pnt}'.format(crs.fetchone()[0]))
+
+def sendDenm(rsu, prks):
+    f = open('denm.json')    
+    denm = json.load(f)
+    denm[''] = prks
+    rsu.publish("vanetza/in/denm", json.dumps(denm))
+    f.close()
+
+
 
 def rsu_process(broker):
     rsu = mqtt.Client(broker)

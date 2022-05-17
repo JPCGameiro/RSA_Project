@@ -12,9 +12,16 @@ def on_disconnect(client, userdata, flags, rc=0):
 def on_message(client, userdata, msg):
     topic=msg.topic
     m_decode=str(msg.payload.decode("utf-8","ignore"))
-    m_in=json.loads(m_decode)
-    #verificar demn
-
+    denm=json.loads(m_decode)
+    
+    '''
+    #verificar free parks no demn
+    if denm[''] > 0:
+        #estacionar!!
+        pass
+    else:
+        pass
+    ''' 
 
 def obu_process(broker):
     obu = mqtt.Client("obu")
@@ -29,6 +36,7 @@ def obu_process(broker):
     cam = json.load(f)
     for _ in range(4):
         obu.publish("vanetza/in/cam", json.dumps(cam))
+        obu.subscribe("vanetza/out/cam")
         time.sleep(2)
     f.close()
     
