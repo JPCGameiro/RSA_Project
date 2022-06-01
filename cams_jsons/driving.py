@@ -3,72 +3,67 @@ import json
 import time
 
 #Go in square through all 4 points
-def drive_in_square(point):
+def drive_in_square(data, point, obu):
     #0.1 seconds to dely for 10 Hz frequency in message generation
+    print("Here")
     while(data['longitude'] <= -8.655763):
         time.sleep(0.1)
         data['longitude'] += 0.00001
         data['timestamp'] = datetime.timestamp(datetime.now())
-        print("CAM")
-        print(data)
+        obu.publish("vanetza/in/cam", json.dumps(data))
     while(data['latitude'] <= 40.633209):
         time.sleep(0.1)
         data['latitude'] += 0.00001
         data['timestamp'] = datetime.timestamp(datetime.now())
-        print("CAM")
-        print(data)
-    
-    print("POINT1")
+        obu.publish("vanetza/in/cam", json.dumps(data))
     if(point == 1):
         return None
+
 
     while(data['longitude'] <= -8.654387):
         time.sleep(0.1)
         data['longitude'] += 0.00001
         data['timestamp'] = datetime.timestamp(datetime.now())
-        print("CAM")
-        print(data)
+        obu.publish("vanetza/in/cam", json.dumps(data))
     while(data['latitude'] <= 40.630577):
         time.sleep(0.1)
         data['latitude'] -= 0.00001
         data['timestamp'] = datetime.timestamp(datetime.now())
-        print("CAM")
-        print(data)
-    
-    print("POINT2")
+        obu.publish("vanetza/in/cam", json.dumps(data))
     if(point == 2):
         return None
+
 
     while(data['longitude'] >= -8.654894):
         time.sleep(0.1)
         data['longitude'] -= 0.00001
         data['timestamp'] = datetime.timestamp(datetime.now())
-        print("CAM")
-        print(data)
+        obu.publish("vanetza/in/cam", json.dumps(data))
     while(data['latitude'] >= 40.630007):
         time.sleep(0.1)
         data['latitude'] -= 0.00001
         data['timestamp'] = datetime.timestamp(datetime.now())
-        print("CAM")
-        print(data)
-    print("POINT3")
+        obu.publish("vanetza/in/cam", json.dumps(data))
     if(point == 3):
         return None
+
 
     while(data['longitude'] >= -8.657125):
         time.sleep(0.1)
         data['longitude'] -= 0.00001
         data['timestamp'] = datetime.timestamp(datetime.now())
+        obu.publish("vanetza/in/cam", json.dumps(data))
         print("CAM")
         print(data)
     while(data['latitude'] >= 40.631786):
         time.sleep(0.1)
         data['latitude'] += 0.00001
         data['timestamp'] = datetime.timestamp(datetime.now())
-        print("CAM")
-        print(data)
-    
-    print("POINT4")
+        obu.publish("vanetza/in/cam", json.dumps(data))
+
+
+
+
 
 #Go to the park entrance
 def go_to_park():
@@ -79,14 +74,10 @@ def go_to_park():
         time.sleep(0.1)
         data['longitude'] -= 0.00001
         data['timestamp'] = datetime.timestamp(datetime.now())
-        print("CAM")
-        print(data)
     while(data['latitude'] <= 40.631420):
         time.sleep(0.1)
         data['latitude'] += 0.00001
         data['timestamp'] = datetime.timestamp(datetime.now())
-        print("CAM")
-        print(data)
     print("I'm At the parking entrance")
 
 
@@ -97,15 +88,10 @@ def park(spot):
         time.sleep(0.1)
         data['longitude'] += 0.00001
         data['timestamp'] = datetime.timestamp(datetime.now())
-        print("CAM")
-        print(data)
     while(data['latitude'] <= 40.631503):
         time.sleep(0.1)
         data['latitude'] += 0.00001
         data['timestamp'] = datetime.timestamp(datetime.now())
-        print("CAM")
-        print(data)
-
     print("I'm at the cancela")
     
     if(spot == 1):
@@ -113,42 +99,30 @@ def park(spot):
             time.sleep(0.1)
             data['longitude'] += 0.00001
             data['timestamp'] = datetime.timestamp(datetime.now())
-            print("CAM")
-            print(data)
         while(data['latitude'] <= 40.631637):
             time.sleep(0.1)
             data['latitude'] += 0.00001
             data['timestamp'] = datetime.timestamp(datetime.now())
-            print("CAM")
-            print(data)
         print("Parked at SPOT1")
     elif(spot == 2):
         while(data['longitude'] >= -8.656529):
             time.sleep(0.1)
             data['longitude'] -= 0.00001
             data['timestamp'] = datetime.timestamp(datetime.now())
-            print("CAM")
-            print(data)
         while(data['latitude'] <= 40.631648):
             time.sleep(0.1)
             data['latitude'] += 0.00001
             data['timestamp'] = datetime.timestamp(datetime.now())
-            print("CAM")
-            print(data)
         print("Parked at SPOT2")
     elif(spot == 3):
         while(data['longitude'] >= -8.656547):
             time.sleep(0.1)
             data['longitude'] -= 0.00001
             data['timestamp'] = datetime.timestamp(datetime.now())
-            print("CAM")
-            print(data)
         while(data['latitude'] <= 40.631662):
             time.sleep(0.1)
             data['latitude'] += 0.00001
             data['timestamp'] = datetime.timestamp(datetime.now())
-            print("CAM")
-            print(data)
         print("Parked at SPOT3")
 
 #Leave the parking lot and go to point 4
@@ -159,21 +133,15 @@ def leave_park(spot):
             time.sleep(0.1)
             data['longitude'] -= 0.00001
             data['timestamp'] = datetime.timestamp(datetime.now())
-            print("CAM")
-            print(data)
     else:
         while(data['longitude'] <= -8.656521):
             time.sleep(0.1)
             data['longitude'] += 0.00001
-            data['timestamp'] = datetime.timestamp(datetime.now())
-            print("CAM")
-            print(data)     
+            data['timestamp'] = datetime.timestamp(datetime.now())     
     while(data['latitude'] >= 40.631503):
         time.sleep(0.1)
         data['latitude'] -= 0.00001
         data['timestamp'] = datetime.timestamp(datetime.now())
-        print("CAM")
-        print(data)
     print("I'm na cancela")
 
     #Got to the starting point of the circuit
@@ -181,18 +149,13 @@ def leave_park(spot):
         time.sleep(0.1)
         data['longitude'] -= 0.00001
         data['timestamp'] = datetime.timestamp(datetime.now())
-        print("CAM")
-        print(data)
     while(data['latitude'] <= 40.631786):
         time.sleep(0.1)
         data['latitude'] += 0.00001
         data['timestamp'] = datetime.timestamp(datetime.now())
-        print("CAM")
-        print(data)
-
     print("I Left my spot sucessfully")
 
-#Read json data
+'''#Read json data
 with open("./driving.json") as json_file:
     data = json.load(json_file)
     print(data)
@@ -206,6 +169,7 @@ while(True):
     park(1)
     leave_park(1)
     break
+'''
 
 
 #40.633209, -8.655763       40.630577, -8.654387

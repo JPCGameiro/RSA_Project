@@ -13,7 +13,7 @@
 	"heading":0,
 	"headingConf":127,
 	"latitude":40.631786,
-	"length":50,
+	"length":4.5,
 	"longitude":-8.657125,
 	"newInfo":true,
 	"receiverID":1,
@@ -30,12 +30,9 @@
 	"speed":30,
 	"speedConf":127,
 	"speedLimiter":true,
-	"stationID":2,
+	"stationID":3,
 	"stationType":5,
-	"test":{
-		"json_timestamp":1652094179.806
-	},
 	"timestamp":1652094179.806,
-	"width":30,
+	"width":1.5,
 	"yawRate":0
 }

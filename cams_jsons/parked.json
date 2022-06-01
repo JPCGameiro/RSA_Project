@@ -12,9 +12,9 @@
 	"gasPedal":false,
 	"heading":0,
 	"headingConf":127,
-	"latitude":40.63161227990999,
+	"latitude":40.631662,
 	"length":30,
-	"longitude":-8.656710277900652,
+	"longitude":-8.656547,
 	"newInfo":true,
 	"receiverID":1,
 	"receiverType":15,
@@ -22,20 +22,12 @@
 	"semiMajorConf":4095,
 	"semiMajorOrient":3601,
 	"semiMinorConf":4095,
-	"specialVehicle":{
-		"publicTransportContainer":{
-			"embarkationStatus":false
-		}
-	},
 	"speed":0,
 	"speedConf":127,
 	"speedLimiter":true,
 	"stationID":2,
 	"stationType":5,
-	"test":{
-		"json_timestamp":1652094179.806
-	},
 	"timestamp":1652094179.806,
-	"width":30,
+	"width":1.8,
 	"yawRate":0
 }
