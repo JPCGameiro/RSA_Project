@@ -5,6 +5,10 @@ def create_dockercompose(numrsus, numobus):
     if numrsus + numobus > 15:
         print("ERROR: Invalid number of units, the sum of rsus and obus cannot be greater than 15")
         return 1
+    
+    #Used to the store the ips of the OBUs and RSUs
+    rsus = []
+    obus = []
 
     #Open docker-compose file
     f = open("../../../Desktop/vanetza/docker-compose.yml", 'r')
@@ -28,7 +32,7 @@ def create_dockercompose(numrsus, numobus):
         rsu['environment'][2] = rsu['environment'][2][:-1] + str(i+1)
         #new ipv4_address
         rsu['networks']['vanetzalan0']['ipv4_address'] = '192.168.98.'+str(i+1)+'0'
-        
+        rsus.append( '192.168.98.'+str(i+1)+'0' )
         #Add new rsu to the docker yml file
         docker_yml['services'][rsu['hostname']] = copy.deepcopy(rsu)
         print("RSU"+ str(i+1) + " added successfully!")
@@ -45,17 +49,17 @@ def create_dockercompose(numrsus, numobus):
         obu['environment'][2] = obu['environment'][2][:-1] + str(i+1)
         #new ipv4_address
         obu['networks']['vanetzalan0']['ipv4_address'] = '192.168.98.'+str(i+1)+'0'
-        
+        obus.append( '192.168.98.'+str(i+1)+'0' )
         #Add new rsu to the docker yml file
         docker_yml['services'][obu['hostname']] = copy.deepcopy(obu)
         print("OBU"+ str(i+1) + " added successfully!")
     
-    
-    
+     
     #Write in result file
     f = open("../../../Desktop/vanetza/docker-compose-result.yml", 'w')
     yaml.dump(docker_yml, f, sort_keys = False)
     print("New docker-compose.yml file created successfully!")
 
+    return (rsus, obus)
 
-create_dockercompose(3, 2)
+print(create_dockercompose(1, 1))
