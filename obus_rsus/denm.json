@@ -1,14 +1,14 @@
 {
     "management": {
         "actionID": {
-            "originatingStationID": 123456789,
+            "originatingStationID": 1,
             "sequenceNumber": 0
         },
         "detectionTime": 1626453837.658,
         "referenceTime": 1626453837.658,
         "eventPosition": {
-            "latitude": 40.631491,
-            "longitude": -8.656481,
+            "latitude": 40631491,
+            "longitude": -8656481,
             "positionConfidenceEllipse": {
                 "semiMajorConfidence": 0,
                 "semiMinorConfidence": 0,
@@ -25,8 +25,8 @@
     "situation": {
         "informationQuality": 7,
         "eventType": {
-            "causeCode": 14,
-            "subCauseCode": 14
+            "causeCode": 37,
+            "subCauseCode": 3
         }
     }
 }

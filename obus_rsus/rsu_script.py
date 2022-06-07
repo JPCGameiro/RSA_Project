@@ -3,17 +3,18 @@ import sqlite3 as sql
 import time, json, sys, multiprocessing as mp
 from datetime import datetime
 
+
 park_occp = []
 canPark = True
 
 
 #callbacks
 def on_connect(client, userdata, flags, rc):
-    if rc==0: print("connected")
+    if rc==0: print("RSU: connected")
     else: print("bad connection code=",rc)
 
 def on_disconnect(client, userdata, flags, rc=0):
-    print("disconnected")
+    print("RSU: disconnected")
     client.dcnt_flag = False
 
 def on_message(client, userdata, msg):
@@ -24,52 +25,49 @@ def on_message(client, userdata, msg):
     brk = client._client_id.decode("utf-8")
 
     #Check for cars in the area around
-    if verflocal(40.631491, cam['latitude'], -8.656481, cam['longitude']):
+    if verflocal(40631491, cam['latitude'], -8656481, cam['longitude']):
         #If speed is 0 means car is driving
         if cam['speed'] != 0:
-            print("Driving Bruuhhh")
+            print("RSU: I detected a car driving")
             #driving out of the park
             if cam['stationID'] in park_occp: 
                 park_occp.pop(cam['stationID'])
                 parkout(cam['latitude'], cam['longitude'])
             #driving in the road
             else:
-                #Check park availability
+                #Check park availability and aswer with denm
                 free_prks = verfFreePark(brk, cam['stationType'])
-                #Answer with denm
-                print("\nlugares livre"+str(free_prks))
                 sendDenm(client, free_prks)
-                time.sleep(0.5)
-                print("demn send\n")
 		#Car is stopped
         else: 
             #Check if car is stopped in a parking spot 
-            print("OBU is Stopped and Parked MDF")
-            print(cam['stationID'])
+            print("RSU: I detected a car parked")
             if not cam['stationID'] in park_occp:
-                #add parks ocupados
+                #add occupied parking spot
                 park_occp.append(cam['stationID'])
-                parkin(cam['latitude'], cam['longitude'])
+                parkin(cam['latitude'], cam['longitude'], cam['stationID'])
+                free_prks = verfFreePark(brk, cam['stationType'])
+                print("RSU: Parking was registered, now there are only "+str(free_prks)+" free spots")
 
         
     
 
 def verflocal(lat, vlat, log, vlong):
-    return 0.000005 >= (pow(vlat - lat, 2) - pow(vlong - log, 2))
+    return 0.000005 >= (pow(vlat*0.000001 - 0.000001*lat, 2) - pow(vlong*0.000001 - 0.000001*log, 2))
 
 def verfFreePark(broker, vtype):
-    print("ip: "+str(broker))
     db = sql.connect('park.db')
     crs = db.cursor()
-    crs.execute('select count(*) from Park where state = -1 and ip = "{b}" and vtype = {v}'.format(b=broker, v=vtype))
+    crs.execute('select count(*) from park where state = -1 and ip = "{b}" and vtype = {v}'.format(b=broker, v=vtype))
     cnt = crs.fetchone()
     return cnt[0]
 
-def parkin(lat, long):
+def parkin(lat, long, stationId):
     db = sql.connect('park.db')
     crs = db.cursor()
     crs.execute('select point from coordinate where lat = "{lat}" and long = {long}'.format(lat=lat, long=long))
-    crs.execute('update park set state = 1 where point = {pnt}'.format(crs.fetchone()[0]))
+    crs.execute('update park set state = {stationId} where point = {pnt}'.format(stationId=stationId, pnt=crs.fetchone()[0]))
+    db.commit()
 
 def parkout(lat, long):
     db = sql.connect('park.db')
@@ -99,11 +97,10 @@ def rsu_process(broker):
     rsu.loop_start()
     rsu.connect(broker)
 
-    print("dcnt flag value : {rsu.dcnt_flag}")
-    while(rsu.dcnt_flag):
+    while(True):
         rsu.subscribe('vanetza/out/cam')
-        time.sleep(2)
-    
+        time.sleep(1)  
+    print("RSU: Simulation finished")
     rsu.loop_stop()
     rsu.disconnect()
     

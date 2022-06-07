@@ -1,8 +1,10 @@
 import paho.mqtt.client as mqtt
 import sqlite3 as sql
 import time, json, sys, multiprocessing as mp
+from datetime import datetime
 
 park_occp = []
+canPark = True
 
 
 #callbacks
@@ -15,26 +17,35 @@ def on_disconnect(client, userdata, flags, rc=0):
     client.dcnt_flag = False
 
 def on_message(client, userdata, msg):
+    #Process Message
     topic=msg.topic
     m_decode=str(msg.payload.decode("utf-8","ignore"))
     cam=json.loads(m_decode)
     brk = client._client_id.decode("utf-8")
-    
-    #verificar carros na sua area
+
+    #Check for cars in the area around
     if verflocal(40.631491, cam['latitude'], -8.656481, cam['longitude']):
+        #If speed is 0 means car is driving
         if cam['speed'] != 0:
+            print("Driving Bruuhhh")
+            #driving out of the park
             if cam['stationID'] in park_occp: 
                 park_occp.pop(cam['stationID'])
                 parkout(cam['latitude'], cam['longitude'])
+            #driving in the road
             else:
-                #verificar disponobilidade de lugares
+                #Check park availability
                 free_prks = verfFreePark(brk, cam['stationType'])
-                #responder com denm msg
-                #sendDenm(client, free_prks)
-                print("\ndemn send\n")
-
+                #Answer with denm
+                print("\nlugares livre"+str(free_prks))
+                sendDenm(client, free_prks)
+                time.sleep(0.5)
+                print("demn send\n")
+		#Car is stopped
         else: 
-            #verificar se esta num dos parques
+            #Check if car is stopped in a parking spot 
+            print("OBU is Stopped and Parked MDF")
+            print(cam['stationID'])
             if not cam['stationID'] in park_occp:
                 #add parks ocupados
                 park_occp.append(cam['stationID'])
@@ -43,13 +54,14 @@ def on_message(client, userdata, msg):
         
     
 
-def verflocal(lat, vlat, long, vlong):
-    return 0.000005 >= (pow(vlat*0.0000001 - lat, 2) - pow(vlong*0.0000001 - long, 2))
+def verflocal(lat, vlat, log, vlong):
+    return 0.000005 >= (pow(vlat - lat, 2) - pow(vlong - log, 2))
 
 def verfFreePark(broker, vtype):
+    print("ip: "+str(broker))
     db = sql.connect('park.db')
     crs = db.cursor()
-    crs.execute('select count(distinct point) from Park where state = 0 and ip = "{b}" and vtype = {v}'.format(b=broker, v=vtype))
+    crs.execute('select count(*) from Park where state = -1 and ip = "{b}" and vtype = {v}'.format(b=broker, v=vtype))
     cnt = crs.fetchone()
     return cnt[0]
 
@@ -68,9 +80,13 @@ def parkout(lat, long):
 def sendDenm(rsu, prks):
     f = open('denm.json')    
     denm = json.load(f)
-    denm[''] = prks
+    denm['management']['actionID']['sequenceNumber'] += 1
+    denm['subCauseCode'] = prks
+    denm['detectionTime'] = datetime.timestamp(datetime.now())
+    denm['referenceTime'] = datetime.timestamp(datetime.now())
     rsu.publish("vanetza/in/denm", json.dumps(denm))
     f.close()
+    
 
 
 
@@ -94,10 +110,12 @@ def rsu_process(broker):
 
 def main():
     #client RSU
-    broker_rsus = ["192.168.98.10", "192.168.98.20"]
+    broker_rsus = ["192.168.98.10"]
     mqtt.Client.dcnt_flag = True
-
+	
     proc_list = []
+    #Add station 2 as parked for the moment
+    park_occp.append(2)
     for brk in broker_rsus:
         rsuProc = mp.Process(target=rsu_process, args=[brk])
         rsuProc.start()
