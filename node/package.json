@@ -1,0 +1,23 @@
+{
+  "name": "node",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "dependencies": {
+    "@mapbox/node-pre-gyp": "^1.0.9",
+    "leaflet": "^1.8.0"
+  },
+  "devDependencies": {
+    "aws-sdk-mock": "^5.7.0",
+    "beefy": "^2.1.8",
+    "browserify": "^17.0.0",
+    "mock-aws-s3": "^4.0.2",
+    "sqlite3": "^5.0.8"
+  },
+  "scripts": {
+    "start": "beefy app.js:bundle.js --live",
+    "bundle": "browserify app.js -o bundle.js"
+  },
+  "author": "",
+  "license": "ISC"
+}
