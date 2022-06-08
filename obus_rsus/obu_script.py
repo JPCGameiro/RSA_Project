@@ -73,9 +73,9 @@ def obu_process(broker):
     obu.disconnect()
 
 
-def main():
+def obu_init_simul(broker_obus):
     #clients OBUs
-    broker_obus = ["192.168.98.20"]
+    #broker_obus = ["192.168.98.20"]
 
     proc_list = []
     for brk in broker_obus:
@@ -88,37 +88,5 @@ def main():
     
 
 if(__name__ == '__main__'):
-    main()
-
-
-
-
-
-
-
-class OBU:
-
-    def __init__(self, broker):
-        self.broker = broker
-        self.obu = mqtt.Client("obu")
-        self.obu.on_connect = on_connect
-        self.obu.on_disconnect = on_disconnect
-        self.obu.on_message = on_message
-
-    def connect(self):
-        self.obu.loop_start()
-        self.obu.connect(self.broker)
-
-    def send_cam(self):
-        f = open('cam.json')    
-        cam = json.load(f)
-        self.obu.publish("vanetza/in/cam", json.dumps(cam))
-        f.close()
-
-    def disconnect(self):
-        self.obu.loop_stop()
-        self.obu.disconnect()
-
-    def getBroker(self):
-        return self.broker
+    obu_init_simul(["192.168.98.20"])
 

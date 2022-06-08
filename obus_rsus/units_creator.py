@@ -62,4 +62,4 @@ def create_dockercompose(numrsus, numobus):
 
     return (rsus, obus)
 
-print(create_dockercompose(1, 1))
+print(create_dockercompose(1, 3))

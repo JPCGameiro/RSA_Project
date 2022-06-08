@@ -105,9 +105,9 @@ def rsu_process(broker):
     rsu.disconnect()
     
 
-def main():
+def rsu_init_simul(broker_rsus):
     #client RSU
-    broker_rsus = ["192.168.98.10"]
+    #broker_rsus = ["192.168.98.10"]
     mqtt.Client.dcnt_flag = True
 	
     proc_list = []
@@ -124,63 +124,5 @@ def main():
 
 
 if(__name__ == '__main__'):
-    main()
+    rsu_init_simul(["192.168.98.10"])
 
-
-
-
-
-
-
-
-#rsu1: 40.631491, -8.656481
-class RSU:
-    db = sql.connect('park.db')
-
-    def __init__(self, parkingLot, lat, long, broker):
-        self.parkingLot = parkingLot
-        self.lat = lat
-        self.long = long
-        self.broker = broker
-        self.rsu = mqtt.Client("obu")
-        self.rsu.on_connect = on_connect
-        self.rsu.on_disconnect = on_disconnect
-        self.rsu.on_message = on_message
-
-    #connect RSU
-    def connect(self):
-        self.rsu.loop_start()
-        self.rsu.connect(self.broker)
-
-    #send cam message
-    def sendCam(self):
-        f = open('cam.json')    
-        cam = json.load(f)
-        self.rsu.publish("vanetza/in/cam", json.dumps(cam))
-        f.close()
-
-    #send denm message
-    def sendDemn(self):
-        f = open('denm.json')    
-        denm = json.load(f)
-        self.rsu.publish("vanetza/in/denm", json.dumps(denm))
-        f.close()
-    
-
-    #verifies db if the vehicle is in the range of it's operation
-    def verifyLocal(self, vlat, vlong):
-        return 100 >= pow(vlat - self.lat, 2) - pow(vlong - self.long, 2)
-
-    #verifies if the parking lot has space for the vehicle
-    def verifyFreeParks(self, vtype, vprio):
-        self.db.execute('select point form Park where park = %s and vehicle = %s and priority = %s limit 1', self.parkingLot, vtype, vprio)
-        
-
-    #disconnect RSU
-    def disconnect(self):
-        self.rsu.loop_stop()
-        self.rsu.disconnect()
-
-    #getter broker
-    def getBroker(self):
-        return self.broker
