@@ -1,3 +1,26 @@
+var mqtt = require('mqtt')
+
+// connection option
+const options = {
+  		clean: true, // retain session
+      connectTimeout: 4000, // Timeout period
+}
+const connectUrl = 'wss://192.168.98.10:/'
+const client = mqtt.connect(connectUrl, options)
+client.on('reconnect', (error) => {
+  console.log('reconnecting:', error)
+})
+
+client.on('error', (error) => {
+  console.log('Connection failed:', error)
+})
+
+client.on('message', (topic, message) => {
+console.log('receive message：', topic, message.toString())
+})
+
+
+
 // Initialize leaflet.js
 var L = require('leaflet');
 
