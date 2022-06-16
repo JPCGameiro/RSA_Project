@@ -1,23 +1,31 @@
-var mqtt = require('mqtt')
+var Paho = require('paho-mqtt');
 
-// connection option
-const options = {
-  		clean: true, // retain session
-      connectTimeout: 4000, // Timeout period
+var client = new Paho.Client("192.168.98.20", Number(1883), "mqtt-publisher");
+// set callback handlers
+client.onConnectionLost = onConnectionLost;
+client.onMessageArrived = onMessageArrived;
+ // connect the client
+client.connect({onSuccess:onConnect});
+
+// called when the client connects
+function onConnect() {
+  // Once a connection has been made, make a subscription and send a message.
+  console.log("onConnect");
+  client.subscribe("vanetza/out/cam");
+  console.log("Connected")
 }
-const connectUrl = 'wss://192.168.98.10:/'
-const client = mqtt.connect(connectUrl, options)
-client.on('reconnect', (error) => {
-  console.log('reconnecting:', error)
-})
 
-client.on('error', (error) => {
-  console.log('Connection failed:', error)
-})
-
-client.on('message', (topic, message) => {
-console.log('receive message：', topic, message.toString())
-})
+// called when the client loses its connection
+function onConnectionLost(responseObject) {
+  if (responseObject.errorCode !== 0) {
+    console.log("onConnectionLost:"+responseObject.errorMessage);
+  }
+}
+ 
+// called when a message arrives
+function onMessageArrived(message) {
+  console.log("onMessageArrived:"+message.payloadString);
+}
 
 
 
