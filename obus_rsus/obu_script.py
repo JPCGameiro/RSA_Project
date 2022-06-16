@@ -3,6 +3,7 @@ import time, json, sys, multiprocessing as mp
 from driving import drive_in_square, go_to_park, park
 from datetime import datetime
 import sqlite3 as sql
+import json
 
 canPark = True 
 finished = False
@@ -34,11 +35,11 @@ def get_spot_free_spotnum(broker, vtype):
     crs.execute('select lat, long from coordinate where point = {v}'.format(v=pnt))
     cdrs = crs.fetchone()
     print("OBU2: I am goin park at "+str(cdrs[0])+" , "+str(cdrs[1]))
-    if (cdrs[0] == 40631637):
+    if (cdrs[0] == 40.631637):
         return 1
-    elif(cdrs[0] == 40631648):
+    elif(cdrs[0] == 40.631648):
         return 2
-    elif (cdrs[0] == 40631662):
+    elif (cdrs[0] == 40.631662):
         return 3	
 
 
@@ -68,15 +69,12 @@ def obu_process(broker):
         obu.publish("vanetza/in/cam", json.dumps(cam))
         time.sleep(0.5)
     print("OBU2: Simulation finished")
-    finished = True
+
     obu.loop_stop()
     obu.disconnect()
 
 
 def obu_init_simul(broker_obus):
-    #clients OBUs
-    #broker_obus = ["192.168.98.20"]
-
     proc_list = []
     for brk in broker_obus:
         obuProc = mp.Process(target=obu_process, args=[brk]) 
