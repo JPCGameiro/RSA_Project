@@ -9,22 +9,21 @@ canPark = []
 finished = False
 
 def on_connect(client, userdata, flags, rc):
-    if rc==0: print("OBU"+int(str(obu._client_id)[-2])+" connected")
+    if rc==0: print("OBU"+str(client._client_id)[-2]+" connected")
     else: print("bad connection code=",rc)
 
 def on_disconnect(client, userdata, flags, rc=0):
-    print("OBU"+int(str(obu._client_id)[-2])+": disconnected")
+    print("OBU"+str(client._client_id)[-2]+": disconnected")
 
 def on_message(client, userdata, msg):
     topic=msg.topic
     m_decode=str(msg.payload.decode("utf-8","ignore"))
     denm=json.loads(m_decode)
-    
     #verificar free parks in the demn
     if denm['fields']['denm']['situation']['eventType']['subCauseCode'] > 0:
-        canPark[ int(str(obu._client_id)[-2]) -1] = True
+        canPark[ int(str(client._client_id)[-2]) -1] = True
     else:
-        canPark[ int(str(obu._client_id)[-2]) -1] = False
+        canPark[ int(str(client._client_id)[-2]) -1] = False
 
 
 def get_spot_free_spotnum(broker, vtype, id):
@@ -34,7 +33,7 @@ def get_spot_free_spotnum(broker, vtype, id):
     pnt = crs.fetchone()[0]
     crs.execute('select lat, long from coordinate where point = {v}'.format(v=pnt))
     cdrs = crs.fetchone()
-    print("OBU"+id+": I am goin park at "+str(cdrs[0])+" , "+str(cdrs[1]))
+    print("OBU"+str(id)+": I am goin park at "+str(cdrs[0])+" , "+str(cdrs[1]))
     if (cdrs[0] == 40.631637):
         return 1
     elif(cdrs[0] == 40.631648):
@@ -56,8 +55,13 @@ def obu_process(broker, id):
     #Load cam json tamplate
     f = open('driving.json')    
     cam = json.load(f)
+    cam['stationID'] = id+1
     
-    #drive_in_square(cam, 4, obu, 2)
+    if( id == 1):
+        drive_in_square(cam, 4, obu, id)
+    elif( id == 2 ):
+        drive_in_square(cam, 4, obu, id)
+        drive_in_square(cam, 4, obu, id)
     go_to_park(cam, obu, id)
     time.sleep(1)
     if(canPark[id-1] == True):
@@ -65,14 +69,15 @@ def obu_process(broker, id):
         print("OBU"+str(id)+": I am parking at spot "+str(i))
         park(i, cam, obu, id)
         print("OBU"+str(id)+": I am parked")
+        for x in range(1, 100):
+            cam['timestamp'] = datetime.timestamp(datetime.now())
+            cam['speed'] = 0
+            obu.publish("vanetza/in/cam", json.dumps(cam))
+            time.sleep(0.5)
     else:
         print("OBU"+str(id)+": I cannot park because it's full")
 
-	
-    for x in range(1, 20):
-        cam['timestamp'] = datetime.timestamp(datetime.now())
-        obu.publish("vanetza/in/cam", json.dumps(cam))
-        time.sleep(0.5)
+
     print("OBU"+str(id)+": Simulation finished")
 
     obu.loop_stop()
@@ -93,5 +98,6 @@ def obu_init_simul(broker_obus):
 if(__name__ == '__main__'):
     canPark.append(False)
     canPark.append(False)
-    obu_init_simul([("192.168.98.20", 1), ("192.168.98.30", 2)])
+    canPark.append(False)
+    obu_init_simul([("192.168.98.20", 1), ("192.168.98.30", 2), ("192.168.98.40", 3)])
 

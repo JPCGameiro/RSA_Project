@@ -5,7 +5,6 @@ from datetime import datetime
 
 
 park_occp = []
-canPark = True
 
 
 #callbacks
@@ -25,7 +24,7 @@ def on_message(client, userdata, msg):
     brk = client._client_id.decode("utf-8")
 
     #Check for cars in the area around
-    if verflocal(40631491, cam['latitude'], -8656481, cam['longitude']):
+    if verflocal(40.631491, cam['latitude'], -8.656481, cam['longitude']):
         #If speed is 0 means car is driving
         if cam['speed'] != 0:
             print("RSU: I detected a car driving")
@@ -48,6 +47,7 @@ def on_message(client, userdata, msg):
                 parkin(cam['latitude'], cam['longitude'], cam['stationID'])
                 free_prks = verfFreePark(brk, cam['stationType'])
                 print("RSU: Parking was registered, now there are only "+str(free_prks)+" free spots")
+                sendDenm(client, free_prks)
 
         
     
@@ -74,12 +74,13 @@ def parkout(lat, long):
     crs = db.cursor()
     crs.execute('select point from coordinate where lat = "{lat}" and long = {long}'.format(lat=lat, long=long))
     crs.execute('update park set state = 0 where point = {pnt}'.format(crs.fetchone()[0]))
+    db.commit()
 
 def sendDenm(rsu, prks):
     f = open('denm.json')    
     denm = json.load(f)
     denm['management']['actionID']['sequenceNumber'] += 1
-    denm['subCauseCode'] = prks
+    denm['situation']['eventType']['subCauseCode'] = prks
     denm['detectionTime'] = datetime.timestamp(datetime.now())
     denm['referenceTime'] = datetime.timestamp(datetime.now())
     rsu.publish("vanetza/in/denm", json.dumps(denm))
@@ -106,13 +107,11 @@ def rsu_process(broker):
     
 
 def rsu_init_simul(broker_rsus):
-    #client RSU
-    #broker_rsus = ["192.168.98.10"]
     mqtt.Client.dcnt_flag = True
 	
     proc_list = []
-    #Add station 2 as parked for the moment
-    park_occp.append(2)
+    #Add station 5 as parked for the moment
+    park_occp.append(5)
     for brk in broker_rsus:
         rsuProc = mp.Process(target=rsu_process, args=[brk])
         rsuProc.start()

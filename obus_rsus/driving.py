@@ -82,7 +82,7 @@ def go_to_park(data, obu, id):
         data['latitude'] += 0.00001
         data['timestamp'] = datetime.timestamp(datetime.now())
         obu.publish("vanetza/in/cam", json.dumps(data))
-    print("OBU"+str(id)+": I'm At the parking entrance")
+    print("OBU"+str(id)+": I'm At the parking 1 entrance")
 
 
 
@@ -111,7 +111,7 @@ def go_straight(data, obu, id):
 
 
 
-#Go to a spot in thse parking lot
+#Go to a spot in the parking lot 1
 def park(spot, data, obu, id):
     #Go from entrance of the parking to cancelas of the park
     while(data['longitude'] <= -8.656521):
@@ -133,55 +133,52 @@ def park(spot, data, obu, id):
             time.sleep(0.1)
             data['longitude'] += 0.00001
             data['timestamp'] = datetime.timestamp(datetime.now())
-
             obu.publish("vanetza/in/cam", json.dumps(data))
         while(data['latitude'] <= 40.631637):
             time.sleep(0.1)
             data['latitude'] += 0.00001
             data['timestamp'] = datetime.timestamp(datetime.now())
-
             obu.publish("vanetza/in/cam", json.dumps(data))
         data['longitude'] = -8.656507
         data['latitude'] = 40.631637
+        data['speed'] = 0
         data['timestamp'] = datetime.timestamp(datetime.now())
         obu.publish("vanetza/in/cam", json.dumps(data))
-        print("OBU"+str(id)+": Parked at SPOT1")
+        print("OBU"+str(id)+": Parked at SPOT1 in PARK1")
     elif(spot == 2):
         while(data['longitude'] >= -8.656529):
             time.sleep(0.1)
             data['longitude'] -= 0.00001
             data['timestamp'] = datetime.timestamp(datetime.now())
-
             obu.publish("vanetza/in/cam", json.dumps(data))
         while(data['latitude'] <= 40.631648):
             time.sleep(0.1)
             data['latitude'] += 0.00001
             data['timestamp'] = datetime.timestamp(datetime.now())
-
             obu.publish("vanetza/in/cam", json.dumps(data))
         data['longitude'] = -8.656529
         data['latitude'] = 40.631648
+        data['speed'] = 0
         data['timestamp'] = datetime.timestamp(datetime.now())
         obu.publish("vanetza/in/cam", json.dumps(data))
-        print("OBU"+str(id)+": Parked at SPOT2")
+        print("OBU"+str(id)+": Parked at SPOT2 in PARK1")
     elif(spot == 3):
         while(data['longitude'] >= -8.656547):
             time.sleep(0.1)
             data['longitude'] -= 0.00001
             data['timestamp'] = datetime.timestamp(datetime.now())
-
             obu.publish("vanetza/in/cam", json.dumps(data))
         while(data['latitude'] <= 40.631662):
             time.sleep(0.1)
             data['latitude'] += 0.00001
             data['timestamp'] = datetime.timestamp(datetime.now())
-
             obu.publish("vanetza/in/cam", json.dumps(data))
         data['longitude'] = -8.656547
         data['latitude'] = 40.631662
+        data['speed'] = 0
         data['timestamp'] = datetime.timestamp(datetime.now())
         obu.publish("vanetza/in/cam", json.dumps(data))
-        print("OBU"+str(id)+": Parked at SPOT3")
+        print("OBU"+str(id)+": Parked at SPOT3 in PARK1")
 
 
 
@@ -222,13 +219,119 @@ def leave_park(spot, data, obu, id):
     print("OBU"+str(id)+": I Left my spot sucessfully")
 
 
+#From point 1 got to park2 entrance
+def go_to_park2(data, obu, id):
+    while(data['longitude'] >= -8.657328):
+        obu.subscribe("vanetza/out/denm")
+        time.sleep(0.1)
+        data['longitude'] -= 0.00001
+        data['timestamp'] = datetime.timestamp(datetime.now())
+        obu.publish("vanetza/in/cam", json.dumps(data))
+    while(data['latitude'] >= 40.631622):
+        obu.subscribe("vanetza/out/denm")
+        time.sleep(0.1)
+        data['latitude'] -= 0.00001
+        data['timestamp'] = datetime.timestamp(datetime.now())
+        obu.publish("vanetza/in/cam", json.dumps(data))
+    print("OBU"+str(id)+": I am at point 5")
 
+    while(data['longitude'] >= -8.657763):
+        obu.subscribe("vanetza/out/denm")
+        time.sleep(0.1)
+        data['longitude'] -= 0.00001
+        data['timestamp'] = datetime.timestamp(datetime.now())
+        obu.publish("vanetza/in/cam", json.dumps(data))
+    while(data['latitude'] <= 40.631890):
+        obu.subscribe("vanetza/out/denm")
+        time.sleep(0.1)
+        data['latitude'] += 0.00001
+        data['timestamp'] = datetime.timestamp(datetime.now())
+        obu.publish("vanetza/in/cam", json.dumps(data))
+    print("OBU"+str(id)+": I am at parking 2 entrance")
+
+
+#Go to a spot in the parking lot 2
+def park2(spot, data, obu, id):
+    if(spot == 1):
+        while(data['longitude'] >= -8.657833):
+            obu.subscribe("vanetza/out/denm")
+            time.sleep(0.1)
+            data['longitude'] -= 0.00001
+            data['timestamp'] = datetime.timestamp(datetime.now())
+            obu.publish("vanetza/in/cam", json.dumps(data))
+        while(data['latitude'] >= 40.631857):
+            obu.subscribe("vanetza/out/denm")
+            time.sleep(0.1)
+            data['latitude'] -= 0.00001
+            data['timestamp'] = datetime.timestamp(datetime.now())
+            obu.publish("vanetza/in/cam", json.dumps(data))
+        print("OBU"+str(id)+": Parked at SPOT1 in PARK2")
+    else:
+        while(data['longitude'] >= -8.657803):
+            obu.subscribe("vanetza/out/denm")
+            time.sleep(0.1)
+            data['longitude'] -= 0.00001
+            data['timestamp'] = datetime.timestamp(datetime.now())
+            obu.publish("vanetza/in/cam", json.dumps(data))
+        while(data['latitude'] >= 40.631840):
+            obu.subscribe("vanetza/out/denm")
+            time.sleep(0.1)
+            data['latitude'] -= 0.00001
+            data['timestamp'] = datetime.timestamp(datetime.now())
+            obu.publish("vanetza/in/cam", json.dumps(data))
+        print("OBU"+str(id)+": Parked at SPOT2 in PARK2")        
+
+
+#Go from parking 2 entrance back to point 1
+def go_back_tostart():
+    while(data['longitude'] >= -8.658624):
+        obu.subscribe("vanetza/out/denm")
+        time.sleep(0.1)
+        data['longitude'] -= 0.00001
+        data['timestamp'] = datetime.timestamp(datetime.now())
+        obu.publish("vanetza/in/cam", json.dumps(data))
+    while(data['latitude'] <= 40.633545):
+        obu.subscribe("vanetza/out/denm")
+        time.sleep(0.1)
+        data['latitude'] += 0.00001
+        data['timestamp'] = datetime.timestamp(datetime.now())
+        obu.publish("vanetza/in/cam", json.dumps(data))  
+    print("OBU"+str(id)+": I am at point 5")
+
+    while(data['longitude'] >= -8.657125):
+        obu.subscribe("vanetza/out/denm")
+        time.sleep(0.1)
+        data['longitude'] -= 0.00001
+        data['timestamp'] = datetime.timestamp(datetime.now())
+        obu.publish("vanetza/in/cam", json.dumps(data))
+    while(data['latitude'] >= 40.631786):
+        obu.subscribe("vanetza/out/denm")
+        time.sleep(0.1)
+        data['latitude'] -= 0.00001
+        data['timestamp'] = datetime.timestamp(datetime.now())
+        obu.publish("vanetza/in/cam", json.dumps(data))  
+    print("OBU"+str(id)+": I am at point 1")  
+
+
+#   CIRCUIT 1
 #40.633209, -8.655763       40.630577, -8.654387
 #                       40.630007, -8.654894
-#40.631786, -8.657125    
+#40.631786, -8.657125  
 
-#Parking entrance: 40.631420, -8.656567
-#Park cancela: 40.631503, -8.656521
-#spot 1 = 40.631637, -8.656507
-#spot 2 = 40.631648, -8.656529
-#spot 3 = 40.631662, -8.656547 
+#   CIRCUIT 2           
+#    40.633545, -8.658624               40.631786, -8.657125
+#                    40.631622, -8.657328
+
+#Parking1 entrance: 40.631420, -8.656567
+#Park1 cancela: 40.631503, -8.656521
+#Park1
+#   spot 1 = 40.631637, -8.656507
+#   spot 2 = 40.631648, -8.656529
+#   spot 3 = 40.631662, -8.656547
+#Park2 entrance: 40.631890, -8.657763
+#Park2
+#   spot 1 = 40.631857, -8.657833
+#   spot 2 = 40.631840, -8.657803
+#rsu1 = 40.631491, -8.656481
+#rsu2 = 40.631824, -8.657713
+
