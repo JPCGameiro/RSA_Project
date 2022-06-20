@@ -265,6 +265,11 @@ def park2(spot, data, obu, id):
             data['latitude'] -= 0.00001
             data['timestamp'] = datetime.timestamp(datetime.now())
             obu.publish("vanetza/in/cam", json.dumps(data))
+        data['longitude'] = -8.657833
+        data['latitude'] = 40.631857
+        data['speed'] = 0
+        data['timestamp'] = datetime.timestamp(datetime.now())
+        obu.publish("vanetza/in/cam", json.dumps(data))
         print("OBU"+str(id)+": Parked at SPOT1 in PARK2")
     else:
         while(data['longitude'] >= -8.657803):
@@ -279,6 +284,11 @@ def park2(spot, data, obu, id):
             data['latitude'] -= 0.00001
             data['timestamp'] = datetime.timestamp(datetime.now())
             obu.publish("vanetza/in/cam", json.dumps(data))
+        data['longitude'] = -8.657803
+        data['latitude'] = 40.631840
+        data['speed'] = 0
+        data['timestamp'] = datetime.timestamp(datetime.now())
+        obu.publish("vanetza/in/cam", json.dumps(data))
         print("OBU"+str(id)+": Parked at SPOT2 in PARK2")        
 
 

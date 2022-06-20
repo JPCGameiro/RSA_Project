@@ -1,6 +1,6 @@
 import paho.mqtt.client as mqtt
 import time, json, sys, multiprocessing as mp
-from driving import drive_in_square, go_to_park, park
+from driving import drive_in_square, go_to_park, park, go_to_park2, park2
 from datetime import datetime
 import sqlite3 as sql
 import json
@@ -34,12 +34,12 @@ def get_spot_free_spotnum(broker, vtype, id):
     crs.execute('select lat, long from coordinate where point = {v}'.format(v=pnt))
     cdrs = crs.fetchone()
     print("OBU"+str(id)+": I am goin park at "+str(cdrs[0])+" , "+str(cdrs[1]))
-    if (cdrs[0] == 40.631637):
+    if (cdrs[0] == 40.631637 or cdrs[0] == 40.6318569):
         return 1
-    elif(cdrs[0] == 40.631648):
+    elif(cdrs[0] == 40.631648 or crds[0] == 40.631840):
         return 2
     elif (cdrs[0] == 40.631662):
-        return 3	
+        return 3
 
 
 def obu_process(broker, id):
@@ -57,25 +57,33 @@ def obu_process(broker, id):
     cam = json.load(f)
     cam['stationID'] = id+1
     
-    if( id == 1):
+
+    if( id == 2):
         drive_in_square(cam, 4, obu, id)
-    elif( id == 2 ):
-        drive_in_square(cam, 4, obu, id)
-        drive_in_square(cam, 4, obu, id)
-    go_to_park(cam, obu, id)
-    time.sleep(1)
-    if(canPark[id-1] == True):
-        i = get_spot_free_spotnum("192.168.98.10", 5, id)
-        print("OBU"+str(id)+": I am parking at spot "+str(i))
-        park(i, cam, obu, id)
-        print("OBU"+str(id)+": I am parked")
+    if( id == 1 or id == 2):
+        go_to_park(cam, obu, id)
+        if(canPark[id-1] == True):
+            i = get_spot_free_spotnum("192.168.98.10", 5, id)
+            print("OBU"+str(id)+": I am parking at spot "+str(i))
+            park(i, cam, obu, id)
+            print("OBU"+str(id)+": I am parked")
+            for x in range(1, 100):
+                cam['timestamp'] = datetime.timestamp(datetime.now())
+                cam['speed'] = 0
+                obu.publish("vanetza/in/cam", json.dumps(cam))
+                time.sleep(0.5)
+        else:
+            print("OBU"+str(id)+": I cannot park because it's full")
+    elif( id == 3):
+        go_to_park2(cam, obu, id) 
+        i = get_spot_free_spotnum("192.168.98.20", 5, id)
+        park2(i, cam, obu, id)
         for x in range(1, 100):
             cam['timestamp'] = datetime.timestamp(datetime.now())
             cam['speed'] = 0
             obu.publish("vanetza/in/cam", json.dumps(cam))
             time.sleep(0.5)
-    else:
-        print("OBU"+str(id)+": I cannot park because it's full")
+
 
 
     print("OBU"+str(id)+": Simulation finished")
@@ -99,5 +107,5 @@ if(__name__ == '__main__'):
     canPark.append(False)
     canPark.append(False)
     canPark.append(False)
-    obu_init_simul([("192.168.98.20", 1), ("192.168.98.30", 2), ("192.168.98.40", 3)])
+    obu_init_simul([("192.168.98.30", 1), ("192.168.98.40", 2), ("192.168.98.50", 3)])
 

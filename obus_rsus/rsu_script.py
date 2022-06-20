@@ -8,15 +8,25 @@ park_occp = []
 
 
 #callbacks
-def on_connect(client, userdata, flags, rc):
-    if rc==0: print("RSU: connected")
+def on_connect1(client, userdata, flags, rc):
+    if rc==0: print("RSU1: connected")
     else: print("bad connection code=",rc)
 
-def on_disconnect(client, userdata, flags, rc=0):
-    print("RSU: disconnected")
+def on_disconnect1(client, userdata, flags, rc=0):
+    print("RSU1: disconnected")
     client.dcnt_flag = False
 
-def on_message(client, userdata, msg):
+def on_connect2(client, userdata, flags, rc):
+    if rc==0: print("RSU2: connected")
+    else: print("bad connection code=",rc)
+
+def on_disconnect2(client, userdata, flags, rc=0):
+    print("RSU2: disconnected")
+    client.dcnt_flag = False
+
+
+#On message for RSU1
+def on_message1(client, userdata, msg):
     #Process Message
     topic=msg.topic
     m_decode=str(msg.payload.decode("utf-8","ignore"))
@@ -27,7 +37,7 @@ def on_message(client, userdata, msg):
     if verflocal(40.631491, cam['latitude'], -8.656481, cam['longitude']):
         #If speed is 0 means car is driving
         if cam['speed'] != 0:
-            print("RSU: I detected a car driving")
+            print("RSU1: I detected a car driving with id "+str(cam['stationID']))
             #driving out of the park
             if cam['stationID'] in park_occp: 
                 park_occp.pop(cam['stationID'])
@@ -40,20 +50,56 @@ def on_message(client, userdata, msg):
 		#Car is stopped
         else: 
             #Check if car is stopped in a parking spot 
-            print("RSU: I detected a car parked")
+            print("RSU1: I detected a car parked")
             if not cam['stationID'] in park_occp:
                 #add occupied parking spot
                 park_occp.append(cam['stationID'])
                 parkin(cam['latitude'], cam['longitude'], cam['stationID'])
                 free_prks = verfFreePark(brk, cam['stationType'])
-                print("RSU: Parking was registered, now there are only "+str(free_prks)+" free spots")
+                print("RSU1: Parking was registered, now there are only "+str(free_prks)+" free spots")
                 sendDenm(client, free_prks)
 
+
+
+#On message for RSU2
+def on_message2(client, userdata, msg):
+    #Process Message
+    topic=msg.topic
+    m_decode=str(msg.payload.decode("utf-8","ignore"))
+    cam=json.loads(m_decode)
+    brk = client._client_id.decode("utf-8")
+
+    #Check for cars in the area around
+    if verflocal(40.631824, cam['latitude'], -8.657713, cam['longitude']):
+        #If speed is 0 means car is driving
+        if cam['speed'] != 0:
+            print("RSU2: I detected a car driving with id "+str(cam['stationID']))
+            #driving out of the park
+            if cam['stationID'] in park_occp: 
+                park_occp.pop(cam['stationID'])
+                parkout(cam['latitude'], cam['longitude'])
+            #driving in the road
+            else:
+                #Check park availability and aswer with denm
+                free_prks = verfFreePark(brk, cam['stationType'])
+                sendDenm(client, free_prks)
+		#Car is stopped
+        else: 
+            #Check if car is stopped in a parking spot 
+            print("RSU2: I detected a car parked")
+            if not cam['stationID'] in park_occp:
+                #add occupied parking spot
+                print("RSU2: at "+brk+" is registering parked car at "+str(cam['latitude'])+" "+str(cam['longitude']))
+                park_occp.append(cam['stationID'])
+                parkin(cam['latitude'], cam['longitude'], cam['stationID'])
+                free_prks = verfFreePark(brk, cam['stationType'])
+                print("RSU2: Parking was registered, now there are only "+str(free_prks)+" free spots")
+                sendDenm(client, free_prks)
         
     
 
 def verflocal(lat, vlat, log, vlong):
-    return 0.000005 >= (pow(vlat*0.000001 - 0.000001*lat, 2) - pow(vlong*0.000001 - 0.000001*log, 2))
+    return 0.0000001 >= (pow(vlat - lat, 2) + pow(vlong - log, 2))
 
 def verfFreePark(broker, vtype):
     db = sql.connect('park.db')
@@ -89,19 +135,24 @@ def sendDenm(rsu, prks):
 
 
 
-def rsu_process(broker):
+def rsu_process(broker, id):
     rsu = mqtt.Client(broker)
-    rsu.on_connect = on_connect
-    rsu.on_disconnect = on_disconnect
-    rsu.on_message = on_message
-
+    if id == 1:
+        rsu.on_connect = on_connect1
+        rsu.on_disconnect = on_disconnect1
+        rsu.on_message = on_message1
+    else: 
+        rsu.on_connect = on_connect2
+        rsu.on_disconnect = on_disconnect2
+        rsu.on_message = on_message2
+    
     rsu.loop_start()
     rsu.connect(broker)
 
     while(True):
         rsu.subscribe('vanetza/out/cam')
         time.sleep(1)  
-    print("RSU: Simulation finished")
+    print("RSU"+str(id)+": Simulation finished")
     rsu.loop_stop()
     rsu.disconnect()
     
@@ -110,10 +161,10 @@ def rsu_init_simul(broker_rsus):
     mqtt.Client.dcnt_flag = True
 	
     proc_list = []
-    #Add station 5 as parked for the moment
-    park_occp.append(5)
+    #Add station 6 as parked for the moment
+    park_occp.append(6)
     for brk in broker_rsus:
-        rsuProc = mp.Process(target=rsu_process, args=[brk])
+        rsuProc = mp.Process(target=rsu_process, args=[brk[0], brk[1]])
         rsuProc.start()
         proc_list.append(rsuProc)
 
@@ -123,5 +174,5 @@ def rsu_init_simul(broker_rsus):
 
 
 if(__name__ == '__main__'):
-    rsu_init_simul(["192.168.98.10"])
+    rsu_init_simul([("192.168.98.10", 1), ("192.168.98.20",2)])
 

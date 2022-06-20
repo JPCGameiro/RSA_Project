@@ -30,12 +30,12 @@ db.execute('insert into coordinate values(40.631637, -8.656507,  null)') #PARK1 
 db.execute('insert into coordinate values(40.631648, -8.656529, null)') #PARK1 SPOT2
 db.execute('insert into coordinate values(40.631662, -8.656547,  null)') #PARK1 SPOT3
 db.execute('insert into coordinate values(40.631824, -8.657713, null)') #RSU2
-db.execute('insert into coordinate values(40.631857, -8.657833,  null)') #PARK2 SPOT1
+db.execute('insert into coordinate values(40.6318569, -8.657833,  null)') #PARK2 SPOT1
 db.execute('insert into coordinate values(40.631840, -8.657803, null)') #PARK2 SPOT2
 
 db.execute('insert into park values(5, null, 2, "192.168.98.10", -1, null)') #PARK1 SPOT1
 db.execute('insert into park values(5, null, 3, "192.168.98.10", -1, null)') #PARK1 SPOT2
-db.execute('insert into park values(5, null, 4, "192.168.98.10", 5, null)') #PARK1 SPOT3
+db.execute('insert into park values(5, null, 4, "192.168.98.10", 6, null)') #PARK1 SPOT3
 db.execute('insert into park values(5, null, 6, "192.168.98.20", -1, null)') #PARK2 SPOT1
 db.execute('insert into park values(5, null, 7, "192.168.98.20", 8, null)') #PARK2 SPOT2
 
