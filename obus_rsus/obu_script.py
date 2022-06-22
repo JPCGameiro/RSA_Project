@@ -27,7 +27,7 @@ def on_message(client, userdata, msg):
 
 
 def get_spot_free_spotnum(broker, vtype, id):
-    db = sql.connect('park.db')
+    db = sql.connect('../park.db')
     crs = db.cursor()
     crs.execute('select point from Park where state = -1 and ip = "{b}" and vtype = {v}'.format(b=broker, v=vtype))
     pnt = crs.fetchone()[0]

@@ -6,7 +6,9 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 var obuIcon = L.icon({
     iconUrl: "static/car.png",
-    iconSize:     [8, 25], // size of the icon
+    iconSize: [16, 16],
+    iconAnchor: [18, 39],
+    popupAnchor: [10, -35]
 });
 
 //array de markers
@@ -28,7 +30,7 @@ function obuCall() {
                 let i=0;
                 for(var key in response){
                     markers[i] = L.marker([ response[key]["lat"], response[key]["long"]], {icon: obuIcon}).addTo(map)
-                        .bindTooltip(key, {permanent: true});
+                        .bindTooltip(key, {permanent: false});
                     i++;
                 } 
             }

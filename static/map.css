@@ -6,11 +6,11 @@ body {
 #painel {
     float: left;
     height: 700px;
-    width: 25%;
+    width: 10%;
 }
 
 #map {
     float: right;
     height: 700px;
-    width: 75%;
+    width: 85%;
 }

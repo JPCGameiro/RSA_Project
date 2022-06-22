@@ -4,7 +4,7 @@ import json
 import time
 
 def update_db(lat, long, id):
-    db = sql.connect('obu.db')
+    db = sql.connect('../obu.db')
     obu_ip = ""
     if(id=='obu1'): obu_ip = "192.168.98.30"
     elif(id=='obu2'): obu_ip = "192.168.98.40"

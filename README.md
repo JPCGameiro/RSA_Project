@@ -1,3 +1,4 @@
+# RSA Project
 ## How to install
 
 1. Create a virtual environment (venv)

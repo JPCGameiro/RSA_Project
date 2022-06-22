@@ -102,21 +102,21 @@ def verflocal(lat, vlat, log, vlong):
     return 0.0000001 >= (pow(vlat - lat, 2) + pow(vlong - log, 2))
 
 def verfFreePark(broker, vtype):
-    db = sql.connect('park.db')
+    db = sql.connect('../park.db')
     crs = db.cursor()
     crs.execute('select count(*) from park where state = -1 and ip = "{b}" and vtype = {v}'.format(b=broker, v=vtype))
     cnt = crs.fetchone()
     return cnt[0]
 
 def parkin(lat, long, stationId):
-    db = sql.connect('park.db')
+    db = sql.connect('../park.db')
     crs = db.cursor()
     crs.execute('select point from coordinate where lat = "{lat}" and long = {long}'.format(lat=lat, long=long))
     crs.execute('update park set state = {stationId} where point = {pnt}'.format(stationId=stationId, pnt=crs.fetchone()[0]))
     db.commit()
 
 def parkout(lat, long):
-    db = sql.connect('park.db')
+    db = sql.connect('../park.db')
     crs = db.cursor()
     crs.execute('select point from coordinate where lat = "{lat}" and long = {long}'.format(lat=lat, long=long))
     crs.execute('update park set state = 0 where point = {pnt}'.format(crs.fetchone()[0]))
