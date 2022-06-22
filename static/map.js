@@ -4,6 +4,10 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
+var obuIcon = L.icon({
+    iconUrl: "static/car.png",
+    iconSize:     [8, 25], // size of the icon
+});
 
 //array de markers
 var markers = [];
@@ -23,9 +27,8 @@ function obuCall() {
                 
                 let i=0;
                 for(var key in response){
-                    markers[i] = L.marker([ response[key]["lat"], response[key]["long"]]).addTo(map)
-                        .bindPopup(key)
-                        .openPopup();
+                    markers[i] = L.marker([ response[key]["lat"], response[key]["long"]], {icon: obuIcon}).addTo(map)
+                        .bindTooltip(key, {permanent: true});
                     i++;
                 } 
             }

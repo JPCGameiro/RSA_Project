@@ -6,12 +6,13 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    conn = sqlite3.connect('park.db')
-    rsu = conn.execute('select id, lat, long from rsu;')
+    conn_rsu = sqlite3.connect('obus_rsus/park.db')
+    rsu = conn_rsu.execute('select id, lat, long from rsu;')
 
     
     if request.is_json:
-        crs = conn.execute('select ip, lat, long from obu;')
+        conn_obu = sqlite3.connect('obus_rsus/obu.db')
+        crs = conn_obu.execute('select ip, lat, long from obu;')
         obus = {}
         for c in crs:
             obus.update({c[0] : {"lat":c[1], "long":c[2]}})

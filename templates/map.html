@@ -22,10 +22,14 @@
 
         <script src="{{ url_for('static', filename='map.js') }}" /></script>
         <script>
+            var rsuIcon = L.icon({
+                iconUrl: "{{ url_for('static', filename='antenna.png') }}",
+                iconSize:     [10, 30], // size of the icon
+            });
+
             {% for r in rsu %}
-                L.marker([ {{ r[1] }}, {{ r[2] }} ]).addTo(map)
-                .bindPopup("{{ r[0] }}")
-                .openPopup();
+                L.marker([ {{ r[1] }}, {{ r[2] }} ], {icon: rsuIcon}).addTo(map)
+                .bindTooltip("obu_{{ r[0] }}", {permanent: true});
             {% endfor %}
         </script>
     </body>

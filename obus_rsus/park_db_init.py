@@ -4,6 +4,8 @@ import sys
 db = sql.connect('park.db')
 
 db.execute('''create table rsu(id integer,
+                                lat real,
+                                long real,
                                ip text primary key);''')
 
 db.execute('''create table coordinate(lat real, 
@@ -20,10 +22,9 @@ db.execute('''create table park(vtype integer not null,
                                 foreign key(ip) references rsu(ip));''')
 
 
+db.execute("insert into rsu values(1, 40.65899, -8.6583838, '192.168.98.10')")
+db.execute("insert into rsu values(2, 40.631824, -8.657713, '192.168.98.20')")
 
-
-db.execute("insert into rsu values(1, '192.168.98.10')")
-db.execute("insert into rsu values(2, '192.168.98.20')")
 
 db.execute('insert into coordinate values(40.65899, -8.6583838, null)') #RSU1
 db.execute('insert into coordinate values(40.631637, -8.656507,  null)') #PARK1 SPOT1
