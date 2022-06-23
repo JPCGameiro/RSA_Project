@@ -382,7 +382,7 @@ def park2(spot, data, obu, id):
 
 
 #Go from parking 2 entrance back to point 1
-def go_back_tostart():
+def go_back_tostart(data, obu, id):
     
     while(data['longitude'] >= -8.658624):
         obu.subscribe("vanetza/out/denm")
