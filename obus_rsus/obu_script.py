@@ -1,6 +1,6 @@
 import paho.mqtt.client as mqtt
 import time, json, sys, multiprocessing as mp
-from driving import drive_in_square, go_to_park, park, go_to_park2, park2, go_straight, go_back_tostart
+from driving import drive_in_square, go_to_park, park, go_to_park2, park2, go_straight, go_back_tostart, leave_park, update_db
 from datetime import datetime
 import sqlite3 as sql
 import json, time
@@ -37,7 +37,7 @@ def get_spot_free_spotnum(broker, vtype, id):
     print("OBU"+str(id)+": I am goin park at "+str(cdrs[0])+" , "+str(cdrs[1]))
     if (cdrs[0] == 40.631637 or cdrs[0] == 40.6318569):
         return 1
-    elif(cdrs[0] == 40.631648 or crds[0] == 40.631840):
+    elif(cdrs[0] == 40.631648 or cdrs[0] == 40.631840):
         return 2
     elif (cdrs[0] == 40.631662):
         return 3
@@ -50,7 +50,7 @@ def course1(cam, obu, id):
         print("OBU"+str(id)+": I am parking at spot "+str(i))
         park(i, cam, obu, id)
         print("OBU"+str(id)+": I am parked")
-        for x in range(1, 100):
+        for x in range(1, 25):
             cam['timestamp'] = datetime.timestamp(datetime.now())
             cam['speed'] = 0
             obu.publish("vanetza/in/cam", json.dumps(cam))
@@ -64,13 +64,20 @@ def course2(cam, obu, id):
     if(canPark[id-1] == True):
         i = get_spot_free_spotnum("192.168.98.20", 5, id)
         park2(i, cam, obu, id)
-        for x in range(1, 100):
+        for x in range(1, 25):
             cam['timestamp'] = datetime.timestamp(datetime.now())
             cam['speed'] = 0
             obu.publish("vanetza/in/cam", json.dumps(cam))
             time.sleep(0.5)
         return True
     return False
+
+#Initially parked in park 1 spot 3 go looking for a spot
+def course3(cam, obu, id):
+    leave_park(3, cam, obu, id)
+    if(not course2(cam, obu, id)):    
+        go_back_tostart(cam, obu, id)
+        course1(cam, obu, id)
 
 
 def obu_process(broker, id):
@@ -88,22 +95,39 @@ def obu_process(broker, id):
     cam = json.load(f)
     cam['stationID'] = id+1
     
-    #Generate a random number to choose a randomly one of the paths to travel
-    rand = random.randint(1, 3)
-    print("OBU"+str(id)+": I am goint for course "+str(rand))
-    #Generate delay (1 or 2 or 3 seconds)
-    time.sleep(id*3)
-    
-    if( rand == 1 or rand == 2):
-        if not course1(cam, obu, id):
-            print("OBU"+str(id)+": I cannot park because it's full")
-            go_straight(cam, obu, id)
-            course2(cam, obu, id)
-    elif( rand == 3):
-        if not course2(cam, obu, id):
-            print("OBU"+str(id)+": I cannot park because it's full")
-            go_back_tostart(cam, obu, id)
-            course1(cam, obu, id)
+    if( id == 4 ):
+        print("OBU"+str(id)+": I am goin to leave my spot")
+        i = random.randint(25, 100)
+        for x in range(1, i):
+            cam['timestamp'] = datetime.timestamp(datetime.now())
+            cam['speed'] = 0
+            cam['longitude'] = -8.656547
+            cam['latitude'] = 40.631662
+            obu.publish("vanetza/in/cam", json.dumps(cam))
+            update_db(cam["latitude"], cam["longitude"], obu._client_id.decode("utf-8"))
+            time.sleep(0.5)
+        cam['speed'] = 30
+        cam['timestamp'] = datetime.timestamp(datetime.now())
+        obu.publish("vanetza/in/cam", json.dumps(cam))
+        update_db(cam["latitude"], cam["longitude"], obu._client_id.decode("utf-8"))
+        course3(cam, obu, id)
+    else:
+        #Generate a random number to choose a randomly one of the paths to travel
+        rand = random.randint(1, 3)
+        print("OBU"+str(id)+": I am going for course "+str(rand))
+        #Generate delay (1 or 2 or 3 seconds)
+        time.sleep(id*3)
+        
+        if( rand == 1 or rand == 2):
+            if not course1(cam, obu, id):
+                print("OBU"+str(id)+": I cannot park because it's full")
+                go_straight(cam, obu, id)
+                course2(cam, obu, id)
+        elif( rand == 3):
+            if not course2(cam, obu, id):
+                print("OBU"+str(id)+": I cannot park because it's full")
+                go_back_tostart(cam, obu, id)
+                course1(cam, obu, id)
 
 
     print("OBU"+str(id)+": Simulation finished")
@@ -127,5 +151,6 @@ if(__name__ == '__main__'):
     canPark.append(False)
     canPark.append(False)
     canPark.append(False)
-    obu_init_simul([("192.168.98.30", 1), ("192.168.98.40", 2), ("192.168.98.50", 3)])
+    canPark.append(False)
+    obu_init_simul([("192.168.98.30", 1), ("192.168.98.40", 2), ("192.168.98.50", 3), ("192.168.98.60", 4)])
 

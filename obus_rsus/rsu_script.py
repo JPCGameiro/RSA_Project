@@ -4,7 +4,8 @@ import time, json, sys, multiprocessing as mp
 from datetime import datetime
 
 
-park_occp = []
+park_occp1 = []
+park_occp2 = []
 
 
 #callbacks
@@ -39,9 +40,11 @@ def on_message1(client, userdata, msg):
         if cam['speed'] != 0:
             print("RSU1: I detected a car driving with id "+str(cam['stationID']))
             #driving out of the park
-            if cam['stationID'] in park_occp: 
-                park_occp.pop(cam['stationID'])
+            if cam['stationID'] in park_occp1: 
+                park_occp1.remove(cam['stationID'])
                 parkout(cam['latitude'], cam['longitude'])
+                free_prks = verfFreePark(brk, cam['stationType'])
+                print("RSU2: A car left the spot now there are "+str(free_prks)+" free spots")
             #driving in the road
             else:
                 #Check park availability and aswer with denm
@@ -50,15 +53,14 @@ def on_message1(client, userdata, msg):
 		#Car is stopped
         else: 
             #Check if car is stopped in a parking spot 
-            print("RSU1: I detected a car parked")
-            if not cam['stationID'] in park_occp:
+            print("RSU1: I detected a car parked with id "+str(cam['stationID']))
+            if not cam['stationID'] in park_occp1:
                 #add occupied parking spot
-                park_occp.append(cam['stationID'])
+                park_occp1.append(cam['stationID'])
                 parkin(cam['latitude'], cam['longitude'], cam['stationID'])
                 free_prks = verfFreePark(brk, cam['stationType'])
                 print("RSU1: Parking was registered, now there are only "+str(free_prks)+" free spots")
                 sendDenm(client, free_prks)
-
 
 
 #On message for RSU2
@@ -75,9 +77,11 @@ def on_message2(client, userdata, msg):
         if cam['speed'] != 0:
             print("RSU2: I detected a car driving with id "+str(cam['stationID']))
             #driving out of the park
-            if cam['stationID'] in park_occp: 
-                park_occp.pop(cam['stationID'])
+            if cam['stationID'] in park_occp2: 
+                park_occp2.remove(cam['stationID'])
                 parkout(cam['latitude'], cam['longitude'])
+                free_prks = verfFreePark(brk, cam['stationType'])
+                print("RSU2: A car left the spot now there are "+str(free_prks)+" free spots")
             #driving in the road
             else:
                 #Check park availability and aswer with denm
@@ -86,11 +90,11 @@ def on_message2(client, userdata, msg):
 		#Car is stopped
         else: 
             #Check if car is stopped in a parking spot 
-            print("RSU2: I detected a car parked")
-            if not cam['stationID'] in park_occp:
+            print("RSU2: I detected a car parked with id "+str(cam['stationID']))
+            if not cam['stationID'] in park_occp2:
                 #add occupied parking spot
                 print("RSU2: at "+brk+" is registering parked car at "+str(cam['latitude'])+" "+str(cam['longitude']))
-                park_occp.append(cam['stationID'])
+                park_occp2.append(cam['stationID'])
                 parkin(cam['latitude'], cam['longitude'], cam['stationID'])
                 free_prks = verfFreePark(brk, cam['stationType'])
                 print("RSU2: Parking was registered, now there are only "+str(free_prks)+" free spots")
@@ -119,7 +123,7 @@ def parkout(lat, long):
     db = sql.connect('../park.db')
     crs = db.cursor()
     crs.execute('select point from coordinate where lat = "{lat}" and long = {long}'.format(lat=lat, long=long))
-    crs.execute('update park set state = 0 where point = {pnt}'.format(crs.fetchone()[0]))
+    crs.execute('update park set state = -1 where point = {pnt}'.format(pnt=crs.fetchone()[0]))
     db.commit()
 
 def sendDenm(rsu, prks):
@@ -161,8 +165,12 @@ def rsu_init_simul(broker_rsus):
     mqtt.Client.dcnt_flag = True
 	
     proc_list = []
-    #Add station 6 as parked for the moment
-    park_occp.append(6)
+
+    #Add station 5 to rsu1 list of cars in the park1
+    park_occp1.append(5)
+    #Add station 8 to rsu2 list of cars in the park2
+    park_occp2.append(8)
+    
     for brk in broker_rsus:
         rsuProc = mp.Process(target=rsu_process, args=[brk[0], brk[1]])
         rsuProc.start()

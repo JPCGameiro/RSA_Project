@@ -9,6 +9,7 @@ def update_db(lat, long, id):
     if(id=='obu1'): obu_ip = "192.168.98.30"
     elif(id=='obu2'): obu_ip = "192.168.98.40"
     elif(id=='obu3'): obu_ip = "192.168.98.50"
+    elif(id=='obu4'): obu_ip = "192.168.98.60"
     db.execute('update obu set lat = {la}, long = {lo} where ip = "{ip}";'.format(la = lat, lo=long, ip = obu_ip))
     db.commit()
 
@@ -247,7 +248,7 @@ def park(spot, data, obu, id):
 
 #Leave the parking lot and go to point 4
 def leave_park(spot, data, obu, id):
-    
+    print("OBU"+str(id)+": I am leaving spot "+str(spot))
     #go to the park cancela
     if(spot == 1):
         while(data['longitude'] >= -8.656521):
@@ -279,11 +280,13 @@ def leave_park(spot, data, obu, id):
         time.sleep(0.1)
         data['longitude'] -= 0.00001
         data['timestamp'] = datetime.timestamp(datetime.now())
+        update_db(data["latitude"], data["longitude"], obu._client_id.decode("utf-8"))
     while(data['latitude'] <= 40.631786):
         time.sleep(0.1)
         data['latitude'] += 0.00001
         data['timestamp'] = datetime.timestamp(datetime.now())
-    print("OBU"+str(id)+": I Left my spot sucessfully")
+        update_db(data["latitude"], data["longitude"], obu._client_id.decode("utf-8"))
+    print("OBU"+str(id)+": I Left the park1 sucessfully")
 
 
 #From point 1 got to park2 entrance

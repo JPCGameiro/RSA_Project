@@ -40,7 +40,7 @@ def create_park_db():
 
     db.execute('insert into park values(5, null, 2, "192.168.98.10", -1, null)') #PARK1 SPOT1
     db.execute('insert into park values(5, null, 3, "192.168.98.10", -1, null)') #PARK1 SPOT2
-    db.execute('insert into park values(5, null, 4, "192.168.98.10", 6, null)') #PARK1 SPOT3
+    db.execute('insert into park values(5, null, 4, "192.168.98.10", 5, null)') #PARK1 SPOT3
     db.execute('insert into park values(5, null, 6, "192.168.98.20", -1, null)') #PARK2 SPOT1
     db.execute('insert into park values(5, null, 7, "192.168.98.20", 8, null)') #PARK2 SPOT2
 
