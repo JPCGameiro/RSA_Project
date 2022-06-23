@@ -44,7 +44,6 @@ def get_spot_free_spotnum(broker, vtype, id):
 
 #Couse 1 -> try to park in parking 1
 def course1(cam, obu, id):
-    drive_in_square(cam, 4, obu, id)
     go_to_park(cam, obu, id)
     if(canPark[id-1] == True):
         i = get_spot_free_spotnum("192.168.98.10", 5, id)
@@ -92,8 +91,8 @@ def obu_process(broker, id):
     #Generate a random number to choose a randomly one of the paths to travel
     rand = random.randint(1, 3)
     print("OBU"+str(id)+": I am goint for course "+str(rand))
-    #Generate random delay (1 or 2 or 3 seconds)
-    time.sleep(random.randint(1, 10)*id)
+    #Generate delay (1 or 2 or 3 seconds)
+    time.sleep(id*3)
     
     if( rand == 1 or rand == 2):
         if not course1(cam, obu, id):
